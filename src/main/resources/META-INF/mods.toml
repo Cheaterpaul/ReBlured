@@ -1,26 +1,26 @@
 modLoader="javafml"
-loaderVersion="[28,)"
+loaderVersion="[38,)"
 issueTrackerURL="https://github.com/tterrag1098/Blur/issues"
 displayURL="https://github.com/tterrag1098/Blur/"
-authors="tterrag"
+authors="Cheaterpaul,tterrag"
 logoFile="blur_logo.png"
 license="MIT"
 
 [[mods]]
 modId="blur"
-version="${file.jarVersion}"
+version="${version}"
 displayName="Blur"
 description="Adds a blurry background when viewing GUIs"
 
 [[dependencies.blur]]
     modId="forge"
     mandatory=true
-    versionRange="[28.1.0,)"
+    versionRange="[${forge_version},)"
     ordering="NONE"
     side="BOTH"
-[[dependencies.firstaid]]
+[[dependencies.blur]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.14.4,1.16)"
+    versionRange="[${minecraft_version},)"
     ordering="NONE"
     side="BOTH"

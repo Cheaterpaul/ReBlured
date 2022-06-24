@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.tterrag.blur.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "blur.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "ScreenMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8.5"
+}
