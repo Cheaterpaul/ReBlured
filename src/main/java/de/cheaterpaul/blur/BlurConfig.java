@@ -1,16 +1,9 @@
-package com.tterrag.blur;
-
-import java.util.List;
-import java.util.function.Predicate;
-
-import net.minecraft.client.gui.screens.ChatScreen;
-import net.minecraft.client.gui.screens.InBedChatScreen;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import org.apache.commons.lang3.tuple.Pair;
+package de.cheaterpaul.blur;
 
 import com.google.common.collect.Lists;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.ChatScreen;
+import net.minecraft.client.gui.screens.InBedChatScreen;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -18,7 +11,11 @@ import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = Blur.MODID, bus = Bus.MOD)
 public class BlurConfig {

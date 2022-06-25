@@ -1,7 +1,7 @@
-package com.tterrag.blur;
+package de.cheaterpaul.blur;
 
 import com.mojang.blaze3d.shaders.Uniform;
-import com.tterrag.blur.util.ShaderResourcePack;
+import de.cheaterpaul.blur.util.ShaderResourcePack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static com.tterrag.blur.Blur.MODID;
+import static de.cheaterpaul.blur.Blur.MODID;
 
 @Mod(MODID)
 public class Blur {
