@@ -35,7 +35,7 @@ version = "${mod_version}-${buildnumber}"
 minecraft {
     mappings channel: 'parchment', version: '2022.06.19-1.18.2'
     
-    //accessTransformer = file('my_at.cfg')
+    accessTransformer = file('src/main/resources/META-INF/at.cfg')
 
     // default run configurations.
     // these can be tweaked, removed, or duplicated as needed.

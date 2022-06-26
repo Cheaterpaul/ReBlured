@@ -1,8 +1,8 @@
 modLoader="javafml"
-loaderVersion="[38,)"
-issueTrackerURL="https://github.com/tterrag1098/Blur/issues"
-displayURL="https://github.com/tterrag1098/Blur/"
-authors="Cheaterpaul,tterrag"
+loaderVersion="[40,)"
+issueTrackerURL="https://github.com/Cheaterpaul/Blur/issues"
+displayURL="https://github.com/Cheaterpaul/Blur/"
+authors="Cheaterpaul"
 logoFile="blur_logo.png"
 license="MIT"
 

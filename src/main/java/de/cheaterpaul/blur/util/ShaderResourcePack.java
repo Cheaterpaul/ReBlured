@@ -11,6 +11,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class ShaderResourcePack implements PackResources, ResourceManagerReloadL
 	private final Map<ResourceLocation, String> loadedData = new HashMap<>();
 
 	@Override
-	public InputStream getResource(PackType type, ResourceLocation location) throws IOException {
+	public @NotNull InputStream getResource(@NotNull PackType type, @NotNull ResourceLocation location) throws IOException {
         if (type == PackType.CLIENT_RESOURCES && validPath(location)) {
             try {
                 return Files.newInputStream(blurModFile.findResource(location.getPath()));
@@ -42,12 +43,12 @@ public class ShaderResourcePack implements PackResources, ResourceManagerReloadL
 	}
 
 	@Override
-	public boolean hasResource(PackType type, ResourceLocation location) {
+	public boolean hasResource(@NotNull PackType type, @NotNull ResourceLocation location) {
 		return type == PackType.CLIENT_RESOURCES && validPath(location) && Files.exists(blurModFile.findResource(location.getPath()));
 	}
 
 	@Override
-	public Set<String> getNamespaces(PackType type) {
+	public @NotNull Set<String> getNamespaces(@NotNull PackType type) {
 		return type == PackType.CLIENT_RESOURCES ? ImmutableSet.of("minecraft") : Collections.emptySet();
 	}
 
@@ -61,22 +62,22 @@ public class ShaderResourcePack implements PackResources, ResourceManagerReloadL
     }
 
 	@Override
-	public void onResourceManagerReload(ResourceManager pResourceManager) {
+	public void onResourceManagerReload(@NotNull ResourceManager pResourceManager) {
 		loadedData.clear();
 	}
 
 	@Override
-	public String getName() {
+	public @NotNull String getName() {
 		return "Blur dummy resource pack";
 	}
 
 	@Override
-    public Collection<ResourceLocation> getResources(PackType p_225637_1_, String p_225637_2_, String p_225637_3_, int p_225637_4_, Predicate<String> p_225637_5_) {
+    public @NotNull Collection<ResourceLocation> getResources(@NotNull PackType p_225637_1_, @NotNull String p_225637_2_, @NotNull String p_225637_3_, int p_225637_4_, @NotNull Predicate<String> p_225637_5_) {
         return Collections.emptyList();
     }
 	
 	@Override
-	public InputStream getRootResource(String arg0) throws IOException {
+	public InputStream getRootResource(@NotNull String arg0) throws IOException {
         return Files.newInputStream(blurModFile.findResource("assets/blur/" + arg0));
 	}
 	
