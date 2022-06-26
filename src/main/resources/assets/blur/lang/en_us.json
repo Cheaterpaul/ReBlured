@@ -1,3 +1,5 @@
 {
-  "blur.config.title" : "Blur Config"
+  "blur.config.title" : "Blur Config",
+  "keys.blur.toggle": "Toggle screen blur",
+  "keys.blur.category": "Blur"
 }

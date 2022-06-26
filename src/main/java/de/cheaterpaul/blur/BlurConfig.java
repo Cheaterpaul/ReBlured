@@ -14,7 +14,9 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @EventBusSubscriber(value = Dist.CLIENT, modid = Blur.MODID, bus = Bus.MOD)
 public class BlurConfig {
@@ -22,6 +24,7 @@ public class BlurConfig {
 	private static final ForgeConfigSpec clientSpec;
 	public static final Client CLIENT;
     public static int colorFirst, colorSecond;
+    public static Set<String> guiExlusions = new HashSet<>();
 
     static {
         final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
@@ -43,6 +46,8 @@ public class BlurConfig {
         BlurConfig.colorFirst = convertColor(colorFirst);
         int colorSecond = Integer.parseUnsignedInt(CLIENT.colorSecondRaw.get(), 16);
         BlurConfig.colorSecond = convertColor(colorSecond);
+        guiExlusions.clear();;
+        guiExlusions.addAll(CLIENT.guiExclusions.get());
         Minecraft.getInstance().execute(() -> BlurClient.updateUniform("Radius", CLIENT.radius.get()));
     }
 

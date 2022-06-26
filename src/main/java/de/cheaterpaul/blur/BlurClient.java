@@ -1,8 +1,11 @@
 package de.cheaterpaul.blur;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.shaders.Uniform;
 import de.cheaterpaul.blur.util.ShaderResourcePack;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
@@ -12,14 +15,19 @@ import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.ScreenOpenEvent;
+import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import org.lwjgl.glfw.GLFW;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -31,9 +39,42 @@ public class BlurClient {
     private static Field _listShaders;
     private static long start;
     private static final ShaderResourcePack dummyPack = new ShaderResourcePack();
+    private static final KeyMapping toggleKey = new KeyMapping("keys.blur.toggle", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F10, "keys.blur.category");
 
     public static void register() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::registerPackRepository);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::clientSetup);
+    }
+
+    private static void clientSetup(FMLClientSetupEvent event) {
+        ClientRegistry.registerKeyBinding(toggleKey);
+    }
+
+    public static boolean clicked;
+    @SubscribeEvent
+    public static void handleInput(InputEvent.KeyInputEvent event) {
+        if (!clicked && toggleKey.matches(event.getKey(), event.getScanCode())) {
+            clicked = true;
+            if (Minecraft.getInstance().level != null) {
+                Screen screen = Minecraft.getInstance().screen;
+                if (screen != null) {
+                    String clazz = screen.getClass().getName();
+                    List<? extends String> s = BlurConfig.CLIENT.guiExclusions.get();
+                    boolean added;
+                    if (s.contains(clazz)) {
+                        s.remove(clazz);
+                        added = false;
+                    } else {
+                        ((List<String>) s).add(clazz);
+                        added = true;
+                    }
+                    BlurConfig.CLIENT.guiExclusions.set(s);
+                    onConfigChange(added);
+                }
+            }
+        } else {
+            clicked = false;
+        }
     }
 
     @SubscribeEvent
@@ -68,12 +109,19 @@ public class BlurClient {
 
     @SubscribeEvent
     public static void onGuiChange(ScreenOpenEvent event) throws SecurityException {
+        updateShader(event.getScreen() == null || BlurConfig.guiExlusions.contains(event.getScreen().getClass().getName()));
+    }
+
+    public static void onConfigChange(boolean excluded) {
+        updateShader(excluded);
+    }
+
+    public static void updateShader(boolean excluded) {
         if (_listShaders == null) {
             _listShaders = ObfuscationReflectionHelper.findField(PostChain.class, "f_110009_");
         }
         if (Minecraft.getInstance().level != null) {
             GameRenderer er = Minecraft.getInstance().gameRenderer;
-            boolean excluded = event.getScreen() == null || BlurConfig.CLIENT.guiExclusions.get().contains(event.getScreen().getClass().getName());
             if (er.currentEffect() == null && !excluded) {
                 er.loadEffect(new ResourceLocation("shaders/post/fade_in_blur.json"));
                 updateUniform("Radius", BlurConfig.CLIENT.radius.get());
