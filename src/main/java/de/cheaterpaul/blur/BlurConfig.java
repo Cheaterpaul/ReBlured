@@ -77,10 +77,10 @@ public class BlurConfig {
                         }
                     });
 
-            this.fadeTime = builder.comment("The time it takes for the blur to fade in, in ms.").defineInRange("fadeTime", 200, 0, 10 * 1000);
+            this.fadeTime = builder.comment("The time it takes for the blur to fade in, in ms.").defineInRange("fadeTime", 100, 0, 10 * 1000);
             this.radius = builder.comment("The radius of the blur effect. This controls how \"strong\" the blur is.").defineInRange("radius", 12, 1, 100);
-            this.colorFirstRaw = builder.comment("The top color of the background gradient. Given in RGBA hex.").define("gradientStartColor", "00000075", this::isHexValue);
-            this.colorSecondRaw = builder.comment("The bottom color of the background gradient. Given in RGBA hex.").define("gradientEndColor", "00000075", this::isHexValue);
+            this.colorFirstRaw = builder.comment("The top color of the background gradient. Given in RGBA hex.").define("gradientStartColor", "0000003f", this::isHexValue);
+            this.colorSecondRaw = builder.comment("The bottom color of the background gradient. Given in RGBA hex.").define("gradientEndColor", "0000003f", this::isHexValue);
         }
 
         private boolean isHexValue(Object o) {

@@ -40,6 +40,7 @@ public class BlurClient {
     private static long start;
     private static final ShaderResourcePack dummyPack = new ShaderResourcePack();
     private static final KeyMapping toggleKey = new KeyMapping("keys.blur.toggle", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F10, "keys.blur.category");
+    private static final ResourceLocation fade_in_blur = new ResourceLocation("shaders/post/fade_in_blur.json");
 
     public static void register() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::registerPackRepository);
@@ -122,13 +123,23 @@ public class BlurClient {
         }
         if (Minecraft.getInstance().level != null) {
             GameRenderer er = Minecraft.getInstance().gameRenderer;
-            if (er.currentEffect() == null && !excluded) {
-                er.loadEffect(new ResourceLocation("shaders/post/fade_in_blur.json"));
-                updateUniform("Radius", BlurConfig.CLIENT.radius.get());
-                start = System.currentTimeMillis();
-            } else if (er.currentEffect() != null && excluded) {
+            PostChain postChain = er.currentEffect();
+            if (!excluded) {
+                if (postChain == null || fade_in_blur.toString().equals(postChain.getName())) {
+                    er.loadEffect(fade_in_blur);
+                    updateUniform("Radius", BlurConfig.CLIENT.radius.get());
+                    if (start == -1) {
+                        start = System.currentTimeMillis();
+                    } else {
+                        updateUniform("Progress", getProgress());
+                    }
+                }
+            } else if (postChain != null && fade_in_blur.toString().equals(postChain.getName())) {
                 er.shutdownEffect();
+                start = -1;
             }
+        } else {
+            start = -1;
         }
     }
 
