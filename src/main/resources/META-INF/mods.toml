@@ -1,24 +1,24 @@
 modLoader="javafml"
 loaderVersion="[40,)"
-issueTrackerURL="https://github.com/Cheaterpaul/Blur/issues"
-displayURL="https://github.com/Cheaterpaul/Blur/"
+issueTrackerURL="https://github.com/Cheaterpaul/ReBlured/issues"
+displayURL="https://github.com/Cheaterpaul/ReBlured/"
 authors="Cheaterpaul"
 logoFile="blur_logo.png"
 license="MIT"
 
 [[mods]]
-modId="blur"
+modId="reblured"
 version="${version}"
-displayName="Blur"
+displayName="ReBlured"
 description="Adds a blurry background when viewing GUIs"
 
-[[dependencies.blur]]
+[[dependencies.reblured]]
     modId="forge"
     mandatory=true
     versionRange="[${forge_version},)"
     ordering="NONE"
     side="BOTH"
-[[dependencies.blur]]
+[[dependencies.reblured]]
     modId="minecraft"
     mandatory=true
     versionRange="[${minecraft_version},)"

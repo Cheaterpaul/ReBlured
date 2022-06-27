@@ -11,10 +11,8 @@ import static de.cheaterpaul.blur.Blur.MODID;
 @Mod(MODID)
 public class Blur {
     
-    public static final String MODID = "blur";
-    public static final String MOD_NAME = "Blur";
-    public static final String VERSION = "@VERSION@";
-    
+    public static final String MODID = "reblured";
+
     @SuppressWarnings("deprecation")
 	public Blur() {
         ModLoadingContext.get().registerExtensionPoint(IExtensionPoint.DisplayTest.class, () -> new IExtensionPoint.DisplayTest(() -> "", (incoming, isNetwork) -> true));

@@ -1,6 +1,7 @@
 package de.cheaterpaul.blur.util;
 
 import com.google.common.collect.ImmutableSet;
+import de.cheaterpaul.blur.Blur;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
@@ -22,7 +23,7 @@ import java.util.function.Predicate;
 
 public class ShaderResourcePack implements PackResources, ResourceManagerReloadListener {
 
-	private final ModFile blurModFile = FMLLoader.getLoadingModList().getModFileById("blur").getFile();
+	private final ModFile blurModFile = FMLLoader.getLoadingModList().getModFileById(Blur.MODID).getFile();
 	
 	protected boolean validPath(ResourceLocation location) {
 		return location.getNamespace().equals("minecraft") && location.getPath().startsWith("shaders/");
@@ -78,7 +79,7 @@ public class ShaderResourcePack implements PackResources, ResourceManagerReloadL
 	
 	@Override
 	public InputStream getRootResource(@NotNull String arg0) throws IOException {
-        return Files.newInputStream(blurModFile.findResource("assets/blur/" + arg0));
+        return Files.newInputStream(blurModFile.findResource("assets/reblured/" + arg0));
 	}
 	
 	@Override

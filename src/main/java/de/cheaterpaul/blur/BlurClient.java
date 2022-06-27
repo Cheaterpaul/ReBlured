@@ -39,7 +39,7 @@ public class BlurClient {
     private static Field _listShaders;
     private static long start;
     private static final ShaderResourcePack dummyPack = new ShaderResourcePack();
-    private static final KeyMapping toggleKey = new KeyMapping("keys.blur.toggle", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F10, "keys.blur.category");
+    private static final KeyMapping toggleKey = new KeyMapping("keys.reblured.toggle", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F10, "keys.reblured.category");
     private static final ResourceLocation fade_in_blur = new ResourceLocation("shaders/post/fade_in_blur.json");
 
     public static void register() {
@@ -153,7 +153,7 @@ public class BlurClient {
     }
 
     public static void registerPackRepository(AddPackFindersEvent event){
-        event.addRepositorySource((infoConsumer, infoFactory) -> infoConsumer.accept(new Pack("blur", true, () -> dummyPack, new TextComponent(dummyPack.getName()), new TextComponent("Default shaders for Blur"), PackCompatibility.COMPATIBLE, Pack.Position.BOTTOM, true, PackSource.DEFAULT, false)));
+        event.addRepositorySource((infoConsumer, infoFactory) -> infoConsumer.accept(new Pack("reblured", true, () -> dummyPack, new TextComponent(dummyPack.getName()), new TextComponent("Default shaders for Blur"), PackCompatibility.COMPATIBLE, Pack.Position.BOTTOM, true, PackSource.DEFAULT, false)));
     }
 
     public static int getBackgroundColor(boolean second) {
