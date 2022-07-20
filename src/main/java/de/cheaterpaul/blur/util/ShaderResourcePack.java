@@ -2,7 +2,7 @@ package de.cheaterpaul.blur.util;
 
 import com.google.common.collect.ImmutableSet;
 import de.cheaterpaul.blur.Blur;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
@@ -57,7 +57,7 @@ public class ShaderResourcePack implements PackResources, ResourceManagerReloadL
     @Override
 	public <T> T getMetadataSection(MetadataSectionSerializer<T> arg0) throws IOException {
 	    if ("pack".equals(arg0.getMetadataSectionName())) {
-	        return (T) new PackMetadataSection(new TextComponent("Blur's default shaders"), 3);
+	        return (T) new PackMetadataSection(Component.literal("Blur's default shaders"), 3);
 	    }
 	    return null;
     }
@@ -73,10 +73,10 @@ public class ShaderResourcePack implements PackResources, ResourceManagerReloadL
 	}
 
 	@Override
-    public @NotNull Collection<ResourceLocation> getResources(@NotNull PackType p_225637_1_, @NotNull String p_225637_2_, @NotNull String p_225637_3_, int p_225637_4_, @NotNull Predicate<String> p_225637_5_) {
-        return Collections.emptyList();
-    }
-	
+	public Collection<ResourceLocation> getResources(PackType p_215339_, String p_215340_, String p_215341_, Predicate<ResourceLocation> p_215342_) {
+		return Collections.emptyList();
+	}
+
 	@Override
 	public InputStream getRootResource(@NotNull String arg0) throws IOException {
         return Files.newInputStream(blurModFile.findResource("assets/reblured/" + arg0));

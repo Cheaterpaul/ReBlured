@@ -9,22 +9,21 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.ScreenOpenEvent;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import org.lwjgl.glfw.GLFW;
@@ -44,16 +43,16 @@ public class BlurClient {
 
     public static void register() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::registerPackRepository);
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::clientSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::registerKeyBinding);
     }
 
-    private static void clientSetup(FMLClientSetupEvent event) {
-        ClientRegistry.registerKeyBinding(toggleKey);
+    private static void registerKeyBinding(RegisterKeyMappingsEvent event) {
+        event.register(toggleKey);
     }
 
     public static boolean clicked;
     @SubscribeEvent
-    public static void handleInput(InputEvent.KeyInputEvent event) {
+    public static void handleInput(InputEvent.Key event) {
         if (!clicked && toggleKey.matches(event.getKey(), event.getScanCode())) {
             clicked = true;
             if (Minecraft.getInstance().level != null) {
@@ -109,8 +108,13 @@ public class BlurClient {
     }
 
     @SubscribeEvent
-    public static void onGuiChange(ScreenOpenEvent event) throws SecurityException {
-        updateShader(event.getScreen() == null || BlurConfig.guiExlusions.contains(event.getScreen().getClass().getName()));
+    public static void onGuiChange(ScreenEvent.Init.Post event) throws SecurityException {
+        updateShader(BlurConfig.guiExlusions.contains(event.getScreen().getClass().getName()));
+    }
+
+    @SubscribeEvent
+    public static void onGuiChange(ScreenEvent.Closing event) throws SecurityException {
+        updateShader(true);
     }
 
     public static void onConfigChange(boolean excluded) {
@@ -153,7 +157,7 @@ public class BlurClient {
     }
 
     public static void registerPackRepository(AddPackFindersEvent event){
-        event.addRepositorySource((infoConsumer, infoFactory) -> infoConsumer.accept(new Pack("reblured", true, () -> dummyPack, new TextComponent(dummyPack.getName()), new TextComponent("Default shaders for Blur"), PackCompatibility.COMPATIBLE, Pack.Position.BOTTOM, true, PackSource.DEFAULT, false)));
+        event.addRepositorySource((infoConsumer, infoFactory) -> infoConsumer.accept(new Pack("reblured", true, () -> dummyPack, Component.literal(dummyPack.getName()), Component.literal("Default shaders for Blur"), PackCompatibility.COMPATIBLE, Pack.Position.BOTTOM, true, PackSource.DEFAULT, false)));
     }
 
     public static int getBackgroundColor(boolean second) {
