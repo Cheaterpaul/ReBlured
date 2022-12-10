@@ -1,27 +1,23 @@
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
         mavenCentral()
 		mavenLocal()
-        maven { url = 'https://maven.parchmentmc.org' }
         maven {url='https://repo.spongepowered.org/repository/maven-public'}
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1+', changing: true
         classpath group: 'org.spongepowered', name:'mixingradle', version: '0.7-SNAPSHOT', changing: true
-        classpath 'org.parchmentmc:librarian:1.+'
     }
 }
 plugins {
+    id 'net.minecraftforge.gradle' version '5.1+'
+    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
     id "com.modrinth.minotaur" version "2.+"
     id 'idea'
     id 'eclipse'
 }
-apply plugin: 'net.minecraftforge.gradle'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'org.spongepowered.mixin'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -42,7 +38,7 @@ apply from: 'gradle/artifacts.gradle'
 apply from: 'gradle/deploy.gradle'
 
 minecraft {
-    mappings channel: 'official', version: project.minecraft_version
+    mappings channel: project.mappings_channel, version: project.mappings_version
     
     accessTransformer = file('src/main/resources/META-INF/at.cfg')
 

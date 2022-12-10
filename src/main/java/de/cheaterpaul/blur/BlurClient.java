@@ -11,16 +11,16 @@ import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackCompatibility;
 import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.event.AddPackFindersEvent;
-import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -37,7 +37,7 @@ public class BlurClient {
     private static float prevProgress = -1;
     private static Field _listShaders;
     private static long start;
-    private static final ShaderResourcePack dummyPack = new ShaderResourcePack();
+    private static final ShaderResourcePack dummyPack = new ShaderResourcePack("blur",true);
     private static final KeyMapping toggleKey = new KeyMapping("keys.reblured.toggle", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F10, "keys.reblured.category");
     private static final ResourceLocation fade_in_blur = new ResourceLocation("shaders/post/fade_in_blur.json");
 
@@ -147,17 +147,12 @@ public class BlurClient {
         }
     }
 
-    @SubscribeEvent
-    public static void onResourceListener(AddReloadListenerEvent event){
-        event.addListener(dummyPack);
-    }
-
     private static float getProgress() {
         return Math.min((System.currentTimeMillis() - start) / (float) BlurConfig.CLIENT.fadeTime.get(), 1);
     }
 
     public static void registerPackRepository(AddPackFindersEvent event){
-        event.addRepositorySource((infoConsumer, infoFactory) -> infoConsumer.accept(new Pack("reblured", true, () -> dummyPack, Component.literal(dummyPack.getName()), Component.literal("Default shaders for Blur"), PackCompatibility.COMPATIBLE, Pack.Position.BOTTOM, true, PackSource.DEFAULT, false)));
+        event.addRepositorySource(consumer -> consumer.accept(Pack.create("reblured", Component.literal("Default shaders for Blur"), true, (s) -> dummyPack, new Pack.Info(Component.literal("Default shaders for Blur"), 0,0, FeatureFlagSet.of(), true), PackType.CLIENT_RESOURCES, Pack.Position.BOTTOM, true, PackSource.BUILT_IN)));
     }
 
     public static int getBackgroundColor(boolean second) {

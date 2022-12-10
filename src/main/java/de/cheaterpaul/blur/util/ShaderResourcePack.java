@@ -2,50 +2,64 @@ package de.cheaterpaul.blur.util;
 
 import com.google.common.collect.ImmutableSet;
 import de.cheaterpaul.blur.Blur;
+import net.minecraft.FileUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.AbstractPackResources;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.metadata.MetadataSectionSerializer;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
+import net.minecraft.server.packs.resources.IoSupplier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.fml.loading.FMLLoader;
 import net.minecraftforge.fml.loading.moddiscovery.ModFile;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Predicate;
 
-public class ShaderResourcePack implements PackResources, ResourceManagerReloadListener {
+public class ShaderResourcePack extends AbstractPackResources implements ResourceManagerReloadListener {
 
 	private final ModFile blurModFile = FMLLoader.getLoadingModList().getModFileById(Blur.MODID).getFile();
-	
+    private final Path root;
+
+	public ShaderResourcePack(String name, boolean buildIn) {
+		super(name, buildIn);
+        this.root = blurModFile.getFilePath();
+	}
+
 	protected boolean validPath(ResourceLocation location) {
 		return location.getNamespace().equals("minecraft") && location.getPath().startsWith("shaders/");
 	}
-	
+
 	private final Map<ResourceLocation, String> loadedData = new HashMap<>();
 
 	@Override
-	public @NotNull InputStream getResource(@NotNull PackType type, @NotNull ResourceLocation location) throws IOException {
+	public @Nullable IoSupplier<InputStream> getResource(@NotNull PackType type, @NotNull ResourceLocation location) {
         if (type == PackType.CLIENT_RESOURCES && validPath(location)) {
-            try {
-                return Files.newInputStream(blurModFile.findResource(location.getPath()));
-            } catch (IOException e) {
-                throw new RuntimeException("Could not read " + location.getPath());
-            }
+            return PathPackResources.getResource(location, this.root);
+        } else {
+            return null;
         }
-        throw new FileNotFoundException(location.toString());
+	}
+
+	@Nullable
+	@Override
+	public IoSupplier<InputStream> getRootResource(String @NotNull ... subPaths) {
+        FileUtil.validatePath(subPaths);
+        Path path = FileUtil.resolvePath(this.root, List.of(subPaths));
+        return Files.exists(path) ? IoSupplier.create(path) : null;
 	}
 
 	@Override
-	public boolean hasResource(@NotNull PackType type, @NotNull ResourceLocation location) {
-		return type == PackType.CLIENT_RESOURCES && validPath(location) && Files.exists(blurModFile.findResource(location.getPath()));
+	public void listResources(@NotNull PackType p_10289_, @NotNull String p_251379_, @NotNull String p_251932_, @NotNull ResourceOutput p_249347_) {
+
 	}
 
 	@Override
@@ -72,16 +86,6 @@ public class ShaderResourcePack implements PackResources, ResourceManagerReloadL
 		return "Blur dummy resource pack";
 	}
 
-	@Override
-	public Collection<ResourceLocation> getResources(PackType p_215339_, String p_215340_, String p_215341_, Predicate<ResourceLocation> p_215342_) {
-		return Collections.emptyList();
-	}
-
-	@Override
-	public InputStream getRootResource(@NotNull String arg0) throws IOException {
-        return Files.newInputStream(blurModFile.findResource("assets/reblured/" + arg0));
-	}
-	
 	@Override
 	public void close() {}
 }
