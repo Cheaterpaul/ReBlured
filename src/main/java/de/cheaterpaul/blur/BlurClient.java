@@ -114,7 +114,7 @@ public class BlurClient {
 
     @SubscribeEvent
     public static void onGuiChange(ScreenEvent.Closing event) throws SecurityException {
-        updateShader(true);
+//        updateShader(true);
     }
 
     public static void onConfigChange(boolean excluded) {
@@ -141,9 +141,11 @@ public class BlurClient {
             } else if (postChain != null && fade_in_blur.toString().equals(postChain.getName())) {
                 er.shutdownEffect();
                 start = -1;
+                prevProgress = -1;
             }
         } else {
             start = -1;
+            prevProgress = -1;
         }
     }
 
