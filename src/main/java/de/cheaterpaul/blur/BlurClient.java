@@ -39,7 +39,7 @@ public class BlurClient {
     private static long start;
     private static final ShaderResourcePack dummyPack = new ShaderResourcePack("blur",true);
     private static final KeyMapping toggleKey = new KeyMapping("keys.reblured.toggle", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F10, "keys.reblured.category");
-    private static final ResourceLocation fade_in_blur = new ResourceLocation("shaders/post/fade_in_blur.json");
+    private static final ResourceLocation fade_in_blur = new ResourceLocation(Blur.MODID,"shaders/post/fade_in_blur.json");
 
     public static void register() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::registerPackRepository);
@@ -129,7 +129,7 @@ public class BlurClient {
             GameRenderer er = Minecraft.getInstance().gameRenderer;
             PostChain postChain = er.currentEffect();
             if (!excluded) {
-                if (postChain == null || fade_in_blur.toString().equals(postChain.getName())) {
+                if (postChain == null || !fade_in_blur.toString().equals(postChain.getName())) {
                     er.loadEffect(fade_in_blur);
                     updateUniform("Radius", BlurConfig.CLIENT.radius.get());
                     if (start == -1) {
