@@ -2,25 +2,18 @@ package de.cheaterpaul.blur;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.shaders.Uniform;
-import de.cheaterpaul.blur.util.ShaderResourcePack;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -34,15 +27,15 @@ import java.util.List;
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Blur.MODID)
 public class BlurClient {
 
-    private static float prevProgress = -1;
-    private static Field _listShaders;
-    private static long start;
-    private static final ShaderResourcePack dummyPack = new ShaderResourcePack("blur",true);
     private static final KeyMapping toggleKey = new KeyMapping("keys.reblured.toggle", KeyConflictContext.GUI, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F10, "keys.reblured.category");
-    private static final ResourceLocation fade_in_blur = new ResourceLocation(Blur.MODID,"shaders/post/fade_in_blur.json");
+    /** uses `minecraft` as namespace because optifine breaks the shader loading */
+    private static final ResourceLocation fade_in_blur = new ResourceLocation("shaders/post/fade_in_blur.json");
+    private static float prevProgress = -1;
+    private static long start;
+    private static Field _listShaders;
+    private static String lastShader;
 
     public static void register() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::registerPackRepository);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::registerKeyBinding);
     }
 
@@ -129,7 +122,14 @@ public class BlurClient {
             GameRenderer er = Minecraft.getInstance().gameRenderer;
             PostChain postChain = er.currentEffect();
             if (!excluded) {
-                if (postChain == null || !fade_in_blur.toString().equals(postChain.getName())) {
+                boolean setShader = false;
+                if (postChain == null) {
+                    setShader = true;
+                } else if (!fade_in_blur.toString().equals(postChain.getName())) {
+                    setShader = true;
+                    lastShader = postChain.getName();
+                }
+                if (setShader) {
                     er.loadEffect(fade_in_blur);
                     updateUniform("Radius", BlurConfig.CLIENT.radius.get());
                     if (start == -1) {
@@ -139,7 +139,12 @@ public class BlurClient {
                     }
                 }
             } else if (postChain != null && fade_in_blur.toString().equals(postChain.getName())) {
-                er.shutdownEffect();
+                if (lastShader != null) {
+                    er.loadEffect(new ResourceLocation(lastShader));
+                    lastShader = null;
+                } else {
+                    er.shutdownEffect();
+                }
                 start = -1;
                 prevProgress = -1;
             }
@@ -151,10 +156,6 @@ public class BlurClient {
 
     private static float getProgress() {
         return Math.min((System.currentTimeMillis() - start) / (float) BlurConfig.CLIENT.fadeTime.get(), 1);
-    }
-
-    public static void registerPackRepository(AddPackFindersEvent event){
-        event.addRepositorySource(consumer -> consumer.accept(Pack.create("reblured", Component.literal("Default shaders for Blur"), true, (s) -> dummyPack, new Pack.Info(Component.literal("Default shaders for Blur"), 0,0, FeatureFlagSet.of(), true), PackType.CLIENT_RESOURCES, Pack.Position.BOTTOM, true, PackSource.BUILT_IN)));
     }
 
     public static int getBackgroundColor(boolean second) {

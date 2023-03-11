@@ -5,7 +5,7 @@
         "dstrgb": "1-srcalpha"
     },
     "vertex": "sobel",
-    "fragment": "reblured:fade_in_blur",
+    "fragment": "fade_in_blur",
     "attributes": [ "Position" ],
     "samplers": [
         { "name": "DiffuseSampler" }
