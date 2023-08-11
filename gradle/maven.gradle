@@ -55,19 +55,13 @@ publishing {
                 }
             }
             // Adds the sources as an artifact.
-            artifact sourcesJar {
-                classifier 'sources'
-            }
+            artifact sourcesJar
 
             // Adds the javadocs as an artifact.
-            artifact javadocJar {
-                classifier 'javadoc'
-            }
+            artifact javadocJar
 
             // Adds the deobfuscated jar as an artifact.
-            artifact deobfJar {
-                classifier 'deobf'
-            }
+            artifact deobfJar
 
 //            artifact forgelibJar {
 //                classifier 'forgelib'
