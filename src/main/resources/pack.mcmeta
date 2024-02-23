@@ -1,6 +1,6 @@
 {
    "pack": {
-      "pack_format": 15,
-      "description": "ReBlured resource pack"
+      "pack_format": ${pack_format_number},
+      "description": "${mod_id} resources"
    }
 }

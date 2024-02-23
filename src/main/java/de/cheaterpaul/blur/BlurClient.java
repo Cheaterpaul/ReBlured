@@ -2,6 +2,7 @@ package de.cheaterpaul.blur;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.shaders.Uniform;
+import de.cheaterpaul.blur.mixin.PostChainMixin;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -9,16 +10,15 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.event.ScreenEvent;
-import net.minecraftforge.client.settings.KeyConflictContext;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.settings.KeyConflictContext;
+import net.neoforged.neoforge.event.TickEvent;
 import org.lwjgl.glfw.GLFW;
 
 import java.lang.reflect.Field;
@@ -32,11 +32,10 @@ public class BlurClient {
     private static final ResourceLocation fade_in_blur = new ResourceLocation("shaders/post/fade_in_blur.json");
     private static float prevProgress = -1;
     private static long start;
-    private static Field _listShaders;
     private static String lastShader;
 
-    public static void register() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(BlurClient::registerKeyBinding);
+    public static void register(IEventBus modBus) {
+        modBus.addListener(BlurClient::registerKeyBinding);
     }
 
     private static void registerKeyBinding(RegisterKeyMappingsEvent event) {
@@ -82,19 +81,17 @@ public class BlurClient {
     }
 
     public static void updateUniform(String name, float value) {
-        if (_listShaders == null) return;
         PostChain sg = Minecraft.getInstance().gameRenderer.currentEffect();
         if(sg != null) {
             try {
-                @SuppressWarnings("unchecked")
-                List<PostPass> shaders = (List<PostPass>) _listShaders.get(sg);
+                List<PostPass> shaders = ((PostChainMixin)sg).getPasses();
                 for (PostPass s : shaders) {
                     Uniform su = s.getEffect().getUniform(name);
                     if (su != null) {
                         su.set(value);
                     }
                 }
-            } catch (IllegalArgumentException | IllegalAccessException e) {
+            } catch (IllegalArgumentException e) {
                 throw new RuntimeException(e);
             }
         }
@@ -115,9 +112,6 @@ public class BlurClient {
     }
 
     public static void updateShader(boolean excluded) {
-        if (_listShaders == null) {
-            _listShaders = ObfuscationReflectionHelper.findField(PostChain.class, "f_110009_");
-        }
         if (Minecraft.getInstance().level != null) {
             GameRenderer er = Minecraft.getInstance().gameRenderer;
             PostChain postChain = er.currentEffect();

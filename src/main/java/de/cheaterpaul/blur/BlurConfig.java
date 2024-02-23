@@ -1,33 +1,33 @@
 package de.cheaterpaul.blur;
 
+import com.electronwill.nightconfig.core.ConfigSpec;
 import com.google.common.collect.Lists;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.gui.screens.InBedChatScreen;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@EventBusSubscriber(value = Dist.CLIENT, modid = Blur.MODID, bus = Bus.MOD)
+@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = Blur.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class BlurConfig {
 
-	private static final ForgeConfigSpec clientSpec;
+	private static final ModConfigSpec clientSpec;
 	public static final Client CLIENT;
     public static int colorFirst, colorSecond;
     public static Set<String> guiExlusions = new HashSet<>();
 
     static {
-        final Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
+        final Pair<Client, ModConfigSpec> specPair = new ModConfigSpec.Builder().configure(Client::new);
         clientSpec = specPair.getRight();
         CLIENT = specPair.getLeft();
     }
@@ -60,13 +60,13 @@ public class BlurConfig {
 
     public static class Client {
 
-        public final ForgeConfigSpec.ConfigValue<List<? extends String>> guiExclusions;
-        public final ForgeConfigSpec.IntValue fadeTime;
-        public final ForgeConfigSpec.IntValue radius;
-        public final ForgeConfigSpec.ConfigValue<String> colorFirstRaw;
-        public final ForgeConfigSpec.ConfigValue<String> colorSecondRaw;
+        public final ModConfigSpec.ConfigValue<List<? extends String>> guiExclusions;
+        public final ModConfigSpec.IntValue fadeTime;
+        public final ModConfigSpec.IntValue radius;
+        public final ModConfigSpec.ConfigValue<String> colorFirstRaw;
+        public final ModConfigSpec.ConfigValue<String> colorSecondRaw;
 
-        private Client(ForgeConfigSpec.Builder builder) {
+        private Client(ModConfigSpec.Builder builder) {
             this.guiExclusions = builder.comment("A list of classes to be excluded from the blur shader.")
                     .defineList("guiExclusions", Lists.newArrayList(ChatScreen.class.getName(), InBedChatScreen.class.getName()), o -> {
                         try {

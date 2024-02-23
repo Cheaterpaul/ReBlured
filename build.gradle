@@ -1,146 +1,89 @@
-buildscript {
-    repositories {
-        jcenter()
-        mavenCentral()
-		mavenLocal()
-        maven {url='https://repo.spongepowered.org/repository/maven-public'}
-    }
-    dependencies {
-        classpath group: 'org.spongepowered', name:'mixingradle', version: '0.7-SNAPSHOT', changing: true
-    }
-}
 plugins {
-    id 'net.minecraftforge.gradle' version '6.0+'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
-    id 'com.matthewprenger.cursegradle' version '1.4.0'
-    id "com.modrinth.minotaur" version "2.+"
+    id "me.modmuss50.mod-publish-plugin" version "0.4.2"
     id 'idea'
     id 'eclipse'
+    id 'net.neoforged.gradle.userdev' version '7.0.+'
 }
-//Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
-apply plugin: 'org.spongepowered.mixin'
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-mixin {
-    add sourceSets.main, "reblured.refmap.json"
-}
-
-group = 'de.cheaterpaul.blur'
-archivesBaseName = project.archives_base_name
 
 ext.mod_version="Test"
 ext.type="test"
 ext.classification = "test"
 
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesBaseName = mod_id
+}
+
 apply from: 'gradle/versioning.gradle'
 apply from: 'gradle/artifacts.gradle'
 apply from: 'gradle/deploy.gradle'
 
-minecraft {
-    mappings channel: project.mappings_channel, version: project.mappings_version
-    
-    accessTransformer = file('src/main/resources/META-INF/at.cfg')
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-    // default run configurations.
-    // these can be tweaked, removed, or duplicated as needed.
-	runs {
-        client {
-            workingDirectory project.file('run')
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-            arg "-mixin.config=reblured.mixins.json"
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
+minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/at.cfg')
 
-            mods {
-                blur {
-                    source sourceSets.main
-                }
-            }
-        }
+runs {
+    configureEach {
+        systemProperty 'forge.logging.markers', 'REGISTRIES'
+        systemProperty 'forge.logging.console.level', 'debug'
 
-        server {
-            workingDirectory project.file('run')
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-            arg "-mixin.config=reblured.mixins.json"
-
-            mods {
-                blur {
-                    source sourceSets.main
-                }
-            }
-        }
+        modSource project.sourceSets.main
     }
-}
-
-def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
-def intoTargets = ["$rootDir/out/production/resources/", "$rootDir/out/production/${project.name}.main/", "$rootDir/bin/main/"]
-def replaceProperties = ['version': project.version, 'minecraft_version': project.minecraft_version, 'forge_version': project.forge_version]
-processResources {
-    inputs.properties replaceProperties
-    replaceProperties.put 'project', project
-
-    filesMatching(resourceTargets) {
-        expand replaceProperties
+    client {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
     }
 
-    intoTargets.each { target ->
-        if (file(target).exists()) {
-            copy {
-                from(sourceSets.main.resources) {
-                    include resourceTargets
-                    expand replaceProperties
-                }
-                into target
-            }
-        }
+    server {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
+        programArgument '--nogui'
     }
-    exclude '**/Thumbs.db'
 
-}
-
-
-jar {
-
-    finalizedBy('reobfJar')
-
-    includeEmptyDirs = false
-
-    from sourceSets.main.output.classesDirs
-    from sourceSets.main.output.resourcesDir
-
-    manifest {
-        attributes(["Specification-Title": project.mod_id,
-                    "Specification-Vendor": "cheaterpaul",
-                    "Specification-Version": "1.0",
-                    "Implementation-Title": project.name,
-                    "Implementation-Version": "${version}",
-                    "Implementation-Vendor" :"cheaterpaul",
-                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],)
+    gameTestServer {
+        systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
     }
-}
 
-repositories {
-	jcenter()
+    data {
+        programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+    }
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:' + minecraft_version + '-' + forge_version
+    implementation "net.neoforged:neoforge:${forge_version}"
+}
 
-    if (System.getProperty("idea.sync.active") != "true") {
-        annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'     : mod_id,
+                'Specification-Vendor'    : mod_authors,
+                'Specification-Version'   : '1', // We are version 1 of ourselves
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : mod_authors,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
     }
 }
 
-// https://github.com/SpongePowered/Mixin/wiki/Mixins-on-Minecraft-Forge
-mixin {
-    add sourceSets.main, "reblured.refmap.json"
-    config "reblured.mixins.json"
+tasks.withType(ProcessResources).configureEach {
+    var replaceProperties = [
+            minecraft_version   : minecraft_version, minecraft_version_range: minecraft_version_range,
+            forge_version         : forge_version, forge_version_range: forge_version_range,
+            loader_version_range: loader_version_range,
+            mod_id              : mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors         : mod_authors, mod_description: mod_description, pack_format_number: pack_format_number,
+            mod_issue_tracker_url: mod_issue_tracker_url, mod_credits: mod_credits
+    ]
+    inputs.properties replaceProperties
 
-    debug.verbose = true
-    debug.export = true
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }
